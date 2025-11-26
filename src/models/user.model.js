@@ -1,0 +1,57 @@
+import { db } from "../config/database.js";
+import bcrypt from "bcryptjs";
+
+export const User = {
+  // Buscar usuario por email
+  findByEmail: async (email) => {
+    const [rows] = await db.query("SELECT * FROM users WHERE email = ?", [email]);
+    return rows[0];
+  },
+
+  // Buscar usuario por ID
+  findById: async (id) => {
+    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+    return rows[0];
+  },
+
+  // Buscar todos los usuarios
+  findAll: async () => {
+    const [rows] = await db.query("SELECT * FROM users ORDER BY created_at DESC");
+    return rows;
+  },
+
+  // Crear usuario con rol
+  create: async (name, email, password, role_id) => {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const [result] = await db.query(
+      "INSERT INTO users (name, email, password, role_id) VALUES (?, ?, ?, ?)",
+      [name, email, hashedPassword, role_id]
+    );
+    return result;
+  },
+
+  // Actualizar usuario
+  update: async (id, name, email, role_id) => {
+    const [result] = await db.query(
+      "UPDATE users SET name = ?, email = ?, role_id = ? WHERE id = ?",
+      [name, email, role_id, id]
+    );
+    return result;
+  },
+
+  // Actualizar contraseña
+  updatePassword: async (id, newPassword) => {
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const [result] = await db.query(
+      "UPDATE users SET password = ? WHERE id = ?",
+      [hashedPassword, id]
+    );
+    return result;
+  },
+
+  // Eliminar usuario
+  delete: async (id) => {
+    const [result] = await db.query("DELETE FROM users WHERE id = ?", [id]);
+    return result;
+  }
+};
