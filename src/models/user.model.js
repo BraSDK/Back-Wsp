@@ -10,13 +10,35 @@ export const User = {
 
   // Buscar usuario por ID
   findById: async (id) => {
-    const [rows] = await db.query("SELECT * FROM users WHERE id = ?", [id]);
+    const [rows] = await db.query(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role_id,
+        r.name AS role_name,
+        u.created_at
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.role_id
+      WHERE u.id = ?
+    `, [id]);
     return rows[0];
   },
 
   // Buscar todos los usuarios
   findAll: async () => {
-    const [rows] = await db.query("SELECT * FROM users ORDER BY created_at DESC");
+    const [rows] = await db.query(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role_id,
+        r.name AS role_name,
+        u.created_at
+      FROM users u
+      LEFT JOIN roles r ON r.id = u.role_id
+      ORDER BY u.created_at DESC
+    `);
     return rows;
   },
 

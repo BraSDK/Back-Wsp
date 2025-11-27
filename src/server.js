@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import authRoutes from "./routes/auth.routes.js";
+import roleRoutes from "./routes/role.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import companyRoutes from "./routes/company.routes.js";
@@ -25,6 +26,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
 
 // --- RUTAS ---
 app.use("/api/auth", authRoutes);
+app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/companies", companyRoutes);

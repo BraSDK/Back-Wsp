@@ -32,17 +32,8 @@ export const createUserController = async (req, res) => {
 export const listUsersController = async (req, res) => {
   try {
     const users = await User.findAll();
-    
-    // No enviar las contraseñas
-    const safeUsers = users.map(user => ({
-      id: user.id,
-      name: user.name,
-      email: user.email,
-      role_id: user.role_id,
-      created_at: user.created_at
-    }));
 
-    res.json({ users: safeUsers });
+    res.json({ users });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al listar usuarios" });
@@ -65,7 +56,7 @@ export const getUserController = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
-      role_id: user.role_id,
+      role_name: user.role_name,
       created_at: user.created_at
     };
 
@@ -107,9 +98,13 @@ export const updateUserController = async (req, res) => {
       await User.updatePassword(id, password);
     }
 
+    // 🔥 Consultar usuario actualizado (con role_name)
+    const updatedUser = await User.findById(id);
+
     res.json({ 
       msg: "Usuario actualizado correctamente",
-      updatedBy: req.user.email
+      updatedBy: req.user?.email || null,
+      user: updatedUser
     });
   } catch (error) {
     console.error(error);
