@@ -56,6 +56,7 @@ export const getUserController = async (req, res) => {
       id: user.id,
       name: user.name,
       email: user.email,
+      role_id: user.role_id,
       role_name: user.role_name,
       created_at: user.created_at
     };

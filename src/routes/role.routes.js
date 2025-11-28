@@ -5,6 +5,25 @@ import { listRolesController } from "../controllers/role.controller.js";
 
 const router = Router();
 
+/**
+ * @swagger
+ * tags:
+ *   name: Roles
+ */
+
+/**
+ * @swagger
+ * /api/roles/:
+ *   get:
+ *     summary: Listar todas los roles
+ *     tags: [Roles]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de roles
+ */
+
 // Obtener todos los roles
 router.get("/", verifyToken, listRolesController);
 
