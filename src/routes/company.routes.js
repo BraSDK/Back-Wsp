@@ -8,7 +8,7 @@ import {
   changeStatus,
   deleteCompany
 } from "../controllers/company.controller.js";
-
+import { uploadLogo } from "../middlewares/upload.js";
 const router = express.Router();
 
 /**
@@ -100,7 +100,7 @@ router.get("/:id", verifyToken, fetchCompanyIds);
  *       200:
  *         description: Empresa creada correctamente
  */
-router.post("/", verifyToken, createCompany);
+router.post("/", verifyToken, uploadLogo.single("logo"), createCompany);
 
 /**
  * @swagger
@@ -141,7 +141,7 @@ router.post("/", verifyToken, createCompany);
  *       200:
  *         description: Empresa actualizada
  */
-router.put("/:id", verifyToken, updateCompany);
+router.put("/:id", verifyToken, uploadLogo.single("logo"), updateCompany);
 
 /**
  * @swagger

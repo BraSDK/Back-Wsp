@@ -23,7 +23,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: "API Docs - Gestión de Usuarios"
 }));
-
+app.use("/uploads/logos", express.static("uploads/logos"));
 // --- RUTAS ---
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
