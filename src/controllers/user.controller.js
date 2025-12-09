@@ -1,32 +1,43 @@
 import { User } from "../models/user.model.js";
 
-// CREAR USUARIO - Solo usuarios autenticados
+// CREAR USUARIO - Solo usuarios autenticados con role_id 1 o 2
 export const createUserController = async (req, res) => {
   try {
     const { name, email, password, role_id } = req.body;
+
+    if (![1, 2].includes(req.user.role_id)) {
+      return res.status(403).json({ msg: "No tienes permisos para crear usuarios" });
+    }
 
     if (!name || !email || !password || !role_id) {
       return res.status(400).json({ msg: "Faltan datos obligatorios" });
     }
 
-    // Verificar si el usuario ya existe
     const existing = await User.findByEmail(email);
-    if (existing) {
-      return res.status(400).json({ msg: "El usuario ya existe" });
-    }
+    if (existing) return res.status(400).json({ msg: "El usuario ya existe" });
 
     // Crear usuario
-    await User.create(name, email, password, role_id);
+    const newUser = await User.create(name, email, password, role_id);
 
-    res.status(201).json({ 
+    // 🔹 Si el creador es Admin (rol 2), asignar automáticamente la misma empresa
+    if (req.user.role_id === 2) {
+      const adminCompanies = await UserCompany.getCompaniesByUser(req.user.id);
+      if (adminCompanies.length > 0) {
+        await UserCompany.assignUserToCompany(newUser.insertId, adminCompanies[0].id);
+      }
+    }
+
+    res.status(201).json({
       msg: "Usuario creado correctamente",
       createdBy: req.user.email
     });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al crear usuario" });
   }
 };
+
 
 // LISTAR USUARIOS - Solo usuarios autenticados
 export const listUsersController = async (req, res) => {
@@ -84,6 +95,7 @@ export const updateUserController = async (req, res) => {
     if (!name || !email || !role_id) {
       return res.status(400).json({ msg: "Faltan datos obligatorios" });
     }
+
 
     // Verificar si el email ya está en uso por otro usuario
     const existingEmail = await User.findByEmail(email);
