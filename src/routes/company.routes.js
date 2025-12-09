@@ -2,6 +2,7 @@ import express from "express";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import {
   getCompanies,
+  fetchCompanyIds,
   createCompany,
   updateCompany,
   changeStatus,
@@ -30,6 +31,40 @@ const router = express.Router();
  *         description: Lista de empresas
  */
 router.get("/", verifyToken, getCompanies);
+
+/**
+ * @swagger
+ * /api/companies/{id}:
+ *   get:
+ *     summary: Obtener un empresa por ID (requiere autenticación)
+ *     tags: [Companies]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID del empresa
+ *     responses:
+ *       200:
+ *         description: Empresa encontrado
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 Companie:
+ *                   $ref: '#/components/schemas/Companie'
+ *       404:
+ *         description: Empresa no encontrado
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get("/:id", verifyToken, fetchCompanyIds);
 
 /**
  * @swagger

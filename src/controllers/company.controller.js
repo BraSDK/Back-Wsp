@@ -9,6 +9,35 @@ export const getCompanies = async (req, res) => {
   }
 };
 
+export const fetchCompanyIds = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const companies = await Company.findById(id);
+    
+    if (!companies) {
+      return res.status(404).json({ msg: "Empresa no encontrado" });
+    }
+
+    // No enviar la contraseña
+    const safeCompanies = {
+      id: companies.id,
+      name: companies.name,
+      ruc: companies.ruc,
+      description: companies.description,
+      address: companies.address,
+      admin_user_id: companies.admin_user_id,
+      user_name: companies.user_name,
+      created_at: companies.created_at
+    };
+
+    res.json({ companies: safeCompanies });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al obtener usuario" });
+  }
+};
+
 export const createCompany = async (req, res) => {
   try {
     const { name, ruc, description, address } = req.body;
@@ -56,8 +85,13 @@ export const updateCompany = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, ruc, description, address, admin_user_id, status } = req.body;
-
+    // Verificar que el usuario existe
+    const company = await Company.findById(id);
     // Validaciones obligatorias
+    if (!company) {
+      return res.status(404).json({ error: "Empresa no encontrada" });
+    }
+
     if (!name || name.trim() === "") {
       return res.status(400).json({ error: "El nombre es obligatorio" });
     }
@@ -70,6 +104,9 @@ export const updateCompany = async (req, res) => {
       return res.status(400).json({ error: "La dirección es obligatoria" });
     }
 
+    // Consultar usuario actualizado (con role_name)
+      const updateCompany = await Company.findById(id);
+
     // Llamada al modelo
     await Company.update(
       id,
@@ -81,7 +118,10 @@ export const updateCompany = async (req, res) => {
       status ? status : null
     );
 
-    res.json({ msg: "Empresa actualizada correctamente" });
+    res.json({ 
+      msg: "Empresa actualizada correctamente",
+      company: updateCompany      
+    });
   } catch (err) {
     console.error("Error al actualizar empresa:", err);
     res.status(500).json({ error: "Error al actualizar empresa", detail: err.message });

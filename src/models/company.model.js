@@ -8,8 +8,22 @@ export const Company = {
     return rows;
   },
 
+  // Buscar empresa por ID
   findById: async (id) => {
-    const [rows] = await db.query("SELECT * FROM companies WHERE id = ?", [id]);
+    const [rows] = await db.query(`
+      SELECT 
+        c.id,
+        c.name,
+        c.ruc,
+        c.description,
+        c.address,
+        c.admin_user_id,
+        u.name AS user_name,
+        c.created_at
+      FROM companies c
+      LEFT JOIN users u ON u.id = c.admin_user_id
+      WHERE c.id = ?
+    `, [id]);
     return rows[0];
   },
 
@@ -21,14 +35,14 @@ export const Company = {
     return result;
   },
 
-update: async (id, name, ruc, description, address, admin_user_id = null, status = null) => {
-  let query = "UPDATE companies SET name = ?, ruc = ?, description = ?, address = ?";
-  const params = [name, ruc, description, address];
+  update: async (id, name, ruc, description, address, admin_user_id = null, status = null) => {
+    let query = "UPDATE companies SET name = ?, ruc = ?, description = ?, address = ?";
+    const params = [name, ruc, description, address];
 
-  if (admin_user_id !== null) {
-    query += ", admin_user_id = ?";
-    params.push(admin_user_id);
-  }
+    if (admin_user_id !== null) {
+      query += ", admin_user_id = ?";
+      params.push(admin_user_id);
+    }
 
   if (status !== null) {
     if (!["active", "inactive"].includes(status)) {
