@@ -9,6 +9,13 @@ export const createUserController = async (req, res) => {
       return res.status(403).json({ msg: "No tienes permisos para crear usuarios" });
     }
 
+    // ❌ Admin NO puede crear super_admin
+    if (req.user.role_id === 2 && role_id === 1) {
+      return res.status(403).json({
+        msg: "No tienes permiso para crear Super Administradores"
+      });
+    }
+
     if (!name || !email || !password || !role_id) {
       return res.status(400).json({ msg: "Faltan datos obligatorios" });
     }
@@ -29,8 +36,15 @@ export const createUserController = async (req, res) => {
 
     res.status(201).json({
       msg: "Usuario creado correctamente",
+      user: {
+        id: newUser.insertId,
+        name,
+        email,
+        role_id
+      },
       createdBy: req.user.email
     });
+    
 
   } catch (error) {
     console.error(error);

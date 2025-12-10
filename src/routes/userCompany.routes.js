@@ -23,11 +23,11 @@
  *               - userId
  *               - companyId
  *             properties:
- *               userId:
+ *               user_id:
  *                 type: integer
  *                 example: 1
  *                 description: ID del usuario a asignar
- *               companyId:
+ *               company_id:
  *                 type: integer
  *                 example: 2
  *                 description: ID de la empresa
