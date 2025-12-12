@@ -1,4 +1,16 @@
 import { User } from "../models/user.model.js";
+import { UserCompany } from "../models/UserCompany.model.js";
+
+// controllers/user.controller.js
+export const getAdminUsersController = async (req, res) => {
+  try {
+    const admins = await User.findAdmins();
+    res.json({ users: admins });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ msg: "Error obteniendo usuarios admin" });
+  }
+};
 
 // CREAR USUARIO - Solo usuarios autenticados con role_id 1 o 2
 export const createUserController = async (req, res) => {
@@ -51,7 +63,6 @@ export const createUserController = async (req, res) => {
     res.status(500).json({ msg: "Error al crear usuario" });
   }
 };
-
 
 // LISTAR USUARIOS - Solo usuarios autenticados
 export const listUsersController = async (req, res) => {

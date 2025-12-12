@@ -9,6 +9,14 @@ export const UserCompany = {
     return result;
   },
 
+  getCompanyByUserId: async (user_id) => {
+    const [rows] = await db.query(
+      "SELECT company_id FROM user_companies WHERE user_id = ? LIMIT 1",
+      [user_id]
+    );
+    return rows[0];
+  },  
+
   removeUserFromCompany: async (user_id, company_id) => {
     const [result] = await db.query(
       "DELETE FROM user_companies WHERE user_id = ? AND company_id = ?",
@@ -31,10 +39,9 @@ export const UserCompany = {
 
   getCompaniesByUser: async (user_id) => {
     const [rows] = await db.query(
-      `SELECT c.id, c.name, c.ruc, c.description
-       FROM user_companies uc
-       JOIN companies c ON c.id = uc.company_id
-       WHERE uc.user_id = ?`,
+      `SELECT company_id 
+       FROM user_companies 
+       WHERE user_id = ?`,
       [user_id]
     );
     return rows;

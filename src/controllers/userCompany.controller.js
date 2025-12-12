@@ -46,6 +46,45 @@ export const assignUserToCompanyController = async (req, res) => {
   }
 };
 
+export const getUsersByRoleAndCompany = async (req, res) => {
+  
+  //console.log("➡️ Entró al endpoint /user-company/by-company");
+
+  //console.log("🔑 Usuario autenticado:", req.user);
+  try {
+    const user = req.user; // ID, role_id del JWT
+
+    // 1️⃣ SuperAdmin ve todos
+    if (user.role_id === 1) {
+      const allUsers = await User.findAll();
+      return res.json(allUsers);
+    }
+
+    // 2️⃣ Admin ve solo usuarios de su empresa
+    if (user.role_id === 2) {
+      const company = await UserCompany.getCompaniesByUser(user.id);
+      //console.log("🏢 Empresas asignadas:", company);
+
+      if (!company.length) {
+        return res.status(400).json({ msg: "El usuario administrador no tiene empresa asignada" });
+      }
+
+      const users = await User.findUsersByCompany(company[0].company_id);
+      //console.log("👥 Usuarios encontrados:", users);
+
+      return res.json(users);
+    }
+
+    // Otros roles devuelven solo su propio usuario
+    const self = await User.findById(user.id);
+    res.json([self]);
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error al obtener usuarios" });
+  }
+};
+
 export const removeUserFromCompanyController = async (req, res) => {
   try {
     const { user_id, company_id } = req.body;

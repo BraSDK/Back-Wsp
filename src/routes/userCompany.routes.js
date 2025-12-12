@@ -87,13 +87,46 @@
  *         description: Datos inválidos
  */
 
+/**
+ * @swagger
+ * /api/user-company/by-company:
+ *   get:
+ *     summary: Obtener usuarios según el rol o empresa del usuario autenticado
+ *     description: >
+ *       Devuelve diferentes listas dependiendo del rol:
+ *       
+ *       - **SuperAdmin (role_id = 1):** Devuelve todos los usuarios.  
+ *       - **Admin (role_id = 2):** Devuelve usuarios de su misma empresa.  
+ *       - **Usuario Empresa (role_id = 3):** Devuelve usuarios role_id 3–4.  
+ *       - **Usuario Normal (role_id = 4):** Devuelve solo su propio usuario.  
+ *     tags: [UserCompany]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista filtrada de usuarios
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       400:
+ *         description: El administrador no tiene empresa asignada
+ *       401:
+ *         description: Token inválido o faltante
+ *       500:
+ *         description: Error interno del servidor
+ */
+
 import express from "express";
 import { verifyToken } from "../middlewares/auth.middleware.js";
-import { assignUserToCompanyController, removeUserFromCompanyController } from "../controllers/userCompany.controller.js";
+import { assignUserToCompanyController, removeUserFromCompanyController, getUsersByRoleAndCompany } from "../controllers/userCompany.controller.js";
 
 const router = express.Router();
 
 router.post("/assign-company", verifyToken, assignUserToCompanyController);
 router.post("/remove-company", verifyToken, removeUserFromCompanyController);
+router.get("/by-company", verifyToken, getUsersByRoleAndCompany);
 
 export default router;

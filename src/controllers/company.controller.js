@@ -46,6 +46,16 @@ export const createCompany = async (req, res) => {
     const { name, ruc, description, address } = req.body;
     const logo = req.file ? req.file.filename : null; // archivo enviado
 
+    // Usuario autenticado
+    const authUser = req.user;
+
+    // Validar rol (solo admin y superadmin)
+    if (![1, 2].includes(authUser.role_id)) {
+      return res.status(403).json({
+        error: "No tienes permisos para crear una empresa"
+      });
+    }
+
     // Validaciones
     if (!name || !name.trim()) return res.status(400).json({ error: "El nombre es obligatorio" });
     if (!ruc || !ruc.trim()) return res.status(400).json({ error: "El RUC es obligatorio" });
@@ -58,7 +68,7 @@ export const createCompany = async (req, res) => {
       ruc.trim(),
       description ? description.trim() : null,
       address.trim(),
-      admin_user_id,
+      authUser.id,
       logo // pasa el logo al modelo
     );
 

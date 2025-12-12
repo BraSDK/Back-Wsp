@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { 
+  getAdminUsersController,
   createUserController, 
   listUsersController,
   getUserController,
@@ -12,9 +13,80 @@ const router = Router();
 
 /**
  * @swagger
+ * tags:
+ *   name: Usuarios
+ *   description: Gestión de usuarios
+ */
+
+ /**
+  * @swagger
+  * components:
+  *   schemas:
+  *     User:
+  *       type: object
+  *       properties:
+  *         id:
+  *           type: integer
+  *         name:
+  *           type: string
+  *         email:
+  *           type: string
+  *         role_id:
+  *           type: integer
+  *         created_at:
+  *           type: string
+  *           format: date-time
+  *
+  *     CreateUserRequest:
+  *       type: object
+  *       required:
+  *         - name
+  *         - email
+  *         - password
+  *         - role_id
+  *       properties:
+  *         name:
+  *           type: string
+  *         email:
+  *           type: string
+  *         password:
+  *           type: string
+  *         role_id:
+  *           type: integer
+  */
+
+/**
+ * @swagger
+ * /api/users/admins:
+ *   get:
+ *     summary: Obtener usuarios con rol Admin o SuperAdmin
+ *     tags: [Usuarios]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios admin/superadmin
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 users:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/User'
+ *       401:
+ *         description: No autorizado
+ *       500:
+ *         description: Error del servidor
+ */
+router.get("/admins", verifyToken, getAdminUsersController);
+
+/**
+ * @swagger
  * /api/users/create:
  *   post:
- *     summary: Crear un nuevo usuario (requiere autenticación)
+ *     summary: Crear un nuevo usuario
  *     tags: [Usuarios]
  *     security:
  *       - bearerAuth: []
@@ -39,9 +111,9 @@ const router = Router();
  *                   type: string
  *                   example: admin@example.com
  *       400:
- *         description: Datos inválidos o usuario ya existe
+ *         description: Datos inválidos
  *       401:
- *         description: No autorizado - Token inválido o no proporcionado
+ *         description: Token inválido o ausente
  *       500:
  *         description: Error del servidor
  */

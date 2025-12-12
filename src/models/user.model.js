@@ -25,6 +25,35 @@ export const User = {
     return rows[0];
   },
 
+  findAdmins: async () => {
+    const [rows] = await db.query(`
+      SELECT 
+        u.id,
+        u.name,
+        u.email,
+        u.role_id,
+        r.name AS role_name
+      FROM users u
+      INNER JOIN roles r ON r.id = u.role_id
+      WHERE u.role_id IN (1, 2)
+      ORDER BY u.name ASC
+    `);
+
+    return rows;
+  },
+
+  // Obtener usuarios por company_id
+  findUsersByCompany: async (company_id) => {
+    const [rows] = await db.query(
+      `SELECT u.id, u.name, u.email, u.role_id, u.created_at
+      FROM users u
+      INNER JOIN user_companies uc ON uc.user_id = u.id
+      WHERE uc.company_id = ?`,
+      [company_id]
+    );
+    return rows;
+  },
+
   // Buscar todos los usuarios
   findAll: async () => {
     const [rows] = await db.query(`

@@ -32,7 +32,7 @@ app.use("/api/roles", roleRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/companies", companyRoutes);
-app.use("/api/users", userCompanyRoutes);
+app.use("/api/user-company", userCompanyRoutes);
 
 app.listen(3000, () => {
   console.log("Server en puerto 3000");
