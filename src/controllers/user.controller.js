@@ -42,7 +42,7 @@ export const createUserController = async (req, res) => {
     if (req.user.role_id === 2) {
       const adminCompanies = await UserCompany.getCompaniesByUser(req.user.id);
       if (adminCompanies.length > 0) {
-        await UserCompany.assignUserToCompany(newUser.insertId, adminCompanies[0].id);
+        await UserCompany.assignUserToCompany(newUser.insertId, adminCompanies[0].company_id );
       }
     }
 

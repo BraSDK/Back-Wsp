@@ -48,7 +48,8 @@ export const User = {
       `SELECT u.id, u.name, u.email, u.role_id, u.created_at
       FROM users u
       INNER JOIN user_companies uc ON uc.user_id = u.id
-      WHERE uc.company_id = ?`,
+      WHERE uc.company_id = ?
+      ORDER BY u.created_at DESC`,
       [company_id]
     );
     return rows;

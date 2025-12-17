@@ -39,9 +39,14 @@ export const UserCompany = {
 
   getCompaniesByUser: async (user_id) => {
     const [rows] = await db.query(
-      `SELECT company_id 
-       FROM user_companies 
-       WHERE user_id = ?`,
+      `SELECT 
+         c.id AS company_id,
+         c.name,
+         c.ruc,
+         c.description
+       FROM user_companies uc
+       JOIN companies c ON c.id = uc.company_id
+       WHERE uc.user_id = ?`,
       [user_id]
     );
     return rows;
