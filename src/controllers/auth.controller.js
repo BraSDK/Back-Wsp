@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { User } from "../models/user.model.js";
+import { UserCompany } from "../models/UserCompany.model.js";
 
 // REGISTRO - Ruta pública (cualquiera puede registrarse)
 export const registerController = async (req, res) => {
@@ -52,6 +53,9 @@ export const loginController = async (req, res) => {
       return res.status(401).json({ msg: "Credenciales inválidas" });
     }
 
+    // 🔹 Obtener empresa del usuario
+    const company = await UserCompany.getMainCompanyByUser(user.id);
+
     // Generar token JWT
     const token = jwt.sign(
       { 
@@ -71,7 +75,8 @@ export const loginController = async (req, res) => {
         name: user.name,
         email: user.email,
         role_id: user.role_id
-      }
+      },
+      company: company || null
     });
   } catch (error) {
     console.error(error);

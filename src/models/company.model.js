@@ -21,11 +21,15 @@ export const Company = {
   },
 
   create: async (name, ruc, description, address, admin_user_id, logo = null) => {
-    const logoPath = logo ? `uploads/logos/${logo}` : null;
+    const logoPath = logo ? `uploads/companies/logos/${logo}` : null;
+  
     const [result] = await db.query(
-      "INSERT INTO companies (name, ruc, description, address, admin_user_id, logo) VALUES (?, ?, ?, ?, ?, ?)",
+      `INSERT INTO companies 
+       (name, ruc, description, address, admin_user_id, logo) 
+       VALUES (?, ?, ?, ?, ?, ?)`,
       [name, ruc, description, address, admin_user_id, logoPath]
     );
+  
     return result;
   },
 
@@ -48,8 +52,8 @@ update: async (id, name, ruc, description, address, admin_user_id = null, status
 
   if (logo !== null) {
     query += ", logo = ?";
-    params.push(`uploads/logos/${logo}`); // guarda la ruta
-  }
+    params.push(`uploads/companies/logos/${logo}`);
+  }  
 
   query += " WHERE id = ?";
   params.push(id);

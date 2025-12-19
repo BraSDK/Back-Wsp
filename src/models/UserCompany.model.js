@@ -50,5 +50,24 @@ export const UserCompany = {
       [user_id]
     );
     return rows;
+  },
+
+  getMainCompanyByUser: async (user_id) => {
+    const [rows] = await db.query(
+      `
+      SELECT 
+        c.id,
+        c.name,
+        c.logo
+      FROM user_companies uc
+      JOIN companies c ON c.id = uc.company_id
+      WHERE uc.user_id = ?
+      ORDER BY uc.created_at ASC
+      LIMIT 1
+      `,
+      [user_id]
+    );
+    return rows[0];
   }
+  
 };

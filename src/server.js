@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
+import path from "path";
 dotenv.config();
 
 import authRoutes from "./routes/auth.routes.js";
@@ -25,7 +26,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs, {
   customCss: '.swagger-ui .topbar { display: none }',
   customSiteTitle: "API Docs - Gestión de Usuarios"
 }));
-app.use("/uploads/logos", express.static("uploads/logos"));
+app.use("/uploads", express.static(path.resolve("uploads")));
 // --- RUTAS ---
 app.use("/api/auth", authRoutes);
 app.use("/api/roles", roleRoutes);
