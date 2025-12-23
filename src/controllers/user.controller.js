@@ -15,8 +15,9 @@ export const getAdminUsersController = async (req, res) => {
 // CREAR USUARIO - Solo usuarios autenticados con role_id 1 o 2
 export const createUserController = async (req, res) => {
   try {
-    const { name, email, password, role_id } = req.body;
+    const { name, email, password, role_id, company_id } = req.body;
 
+    // 🔒 Permisos
     if (![1, 2].includes(req.user.role_id)) {
       return res.status(403).json({ msg: "No tienes permisos para crear usuarios" });
     }
@@ -28,22 +29,46 @@ export const createUserController = async (req, res) => {
       });
     }
 
+    // 📌 Validaciones básicas
     if (!name || !email || !password || !role_id) {
       return res.status(400).json({ msg: "Faltan datos obligatorios" });
     }
 
-    const existing = await User.findByEmail(email);
-    if (existing) return res.status(400).json({ msg: "El usuario ya existe" });
+    // 📌 SuperAdmin debe enviar empresa
+    if (req.user.role_id === 1 && !company_id) {
+      return res.status(400).json({
+        msg: "Debes seleccionar una empresa"
+      });
+    }
 
-    // Crear usuario
+    // 📌 Email único
+    const existing = await User.findByEmail(email);
+    if (existing) {
+      return res.status(400).json({ msg: "El usuario ya existe" });
+    }
+
+    // ✅ Crear usuario
     const newUser = await User.create(name, email, password, role_id);
 
-    // 🔹 Si el creador es Admin (rol 2), asignar automáticamente la misma empresa
+    // 🔗 ASIGNACIÓN DE EMPRESA
     if (req.user.role_id === 2) {
+      // Admin → hereda empresa
       const adminCompanies = await UserCompany.getCompaniesByUser(req.user.id);
+
       if (adminCompanies.length > 0) {
-        await UserCompany.assignUserToCompany(newUser.insertId, adminCompanies[0].company_id );
+        await UserCompany.assignUserToCompany(
+          newUser.insertId,
+          adminCompanies[0].company_id
+        );
       }
+    }
+
+    if (req.user.role_id === 1) {
+      // SuperAdmin → empresa seleccionada
+      await UserCompany.assignUserToCompany(
+        newUser.insertId,
+        company_id
+      );
     }
 
     res.status(201).json({
@@ -56,7 +81,6 @@ export const createUserController = async (req, res) => {
       },
       createdBy: req.user.email
     });
-    
 
   } catch (error) {
     console.error(error);
@@ -81,7 +105,7 @@ export const getUserController = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const user = await User.findById(id);
+    const user = await User.findByIdWithCompany(id);
     
     if (!user) {
       return res.status(404).json({ msg: "Usuario no encontrado" });
@@ -97,7 +121,7 @@ export const getUserController = async (req, res) => {
       created_at: user.created_at
     };
 
-    res.json({ user: safeUser });
+    res.json({ user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al obtener usuario" });
@@ -108,7 +132,7 @@ export const getUserController = async (req, res) => {
 export const updateUserController = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, email, role_id, password } = req.body;
+    const { name, email, role_id, password, company_id } = req.body;
 
     // Verificar que el usuario existe
     const user = await User.findById(id);
@@ -131,13 +155,24 @@ export const updateUserController = async (req, res) => {
     // Actualizar datos básicos
     await User.update(id, name, email, role_id);
 
+    // 🔥 actualizar empresa SOLO super admin
+    if (req.user.role_id === 1 && company_id) {
+      const companies = await UserCompany.getCompaniesByUser(id);
+
+      if (companies.length > 0) {
+        await UserCompany.updateUserCompany(id, company_id);
+      } else {
+        await UserCompany.assignUserToCompany(id, company_id);
+      }
+    }
+
     // Si se proporciona nueva contraseña, actualizarla
     if (password && password.trim() !== "") {
       await User.updatePassword(id, password);
     }
 
     // 🔥 Consultar usuario actualizado (con role_name)
-    const updatedUser = await User.findById(id);
+    const updatedUser = await User.findByIdWithCompany(id);
 
     res.json({ 
       msg: "Usuario actualizado correctamente",

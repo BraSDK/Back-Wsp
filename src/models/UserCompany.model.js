@@ -9,6 +9,14 @@ export const UserCompany = {
     return result;
   },
 
+  updateUserCompany: async (user_id, company_id) => {
+    const [result] = await db.query(
+      "UPDATE user_companies SET company_id = ? WHERE user_id = ?",
+      [company_id, user_id]
+    );
+    return result;
+  },  
+
   getCompanyByUserId: async (user_id) => {
     const [rows] = await db.query(
       "SELECT company_id FROM user_companies WHERE user_id = ? LIMIT 1",
