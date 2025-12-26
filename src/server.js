@@ -10,6 +10,7 @@ import userRoutes from "./routes/user.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import companyRoutes from "./routes/company.routes.js";
 import userCompanyRoutes from "./routes/userCompany.routes.js";
+import campanaRoutes from "./routes/campana.routes.js";
 
 // Swagger
 import { specs, swaggerUi } from "./config/swagger.js";
@@ -34,6 +35,7 @@ app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/companies", companyRoutes);
 app.use("/api/user-company", userCompanyRoutes);
+app.use("/api/campanas", campanaRoutes);
 
 app.listen(3000, () => {
   console.log("Server en puerto 3000");
