@@ -2,7 +2,7 @@ import express from "express";
 import { createCampana, getAssignableUsersByCampana} from "../controllers/campana.controller.js";
 import { verifyToken } from "../middlewares/auth.middleware.js";
 import { listCampanas } from "../controllers/campana.controller.js";
-import { assignUserToCampana } from "../controllers/campana.controller.js";
+import { assignUserToCampana, listUsersByCampana, removeUserFromCampana } from "../controllers/campana.controller.js";
 
 const router = express.Router();
 
@@ -91,5 +91,56 @@ router.post("/assign-user", verifyToken, assignUserToCampana);
 
 // LISTAR USUARIOS ASIGNABLES
 router.get("/:id/assignable-users", verifyToken, getAssignableUsersByCampana);
+
+/**
+ * @swagger
+ * /api/campanas/{id}/users:
+ *   get:
+ *     summary: Listar usuarios asignados a una campaña
+ *     tags: [Campañas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Lista de usuarios asignados
+ *       403:
+ *         description: Acceso denegado
+ *       404:
+ *         description: Campaña no encontrada
+ */
+router.get("/:id/users", verifyToken, listUsersByCampana);
+
+/**
+ * @swagger
+ * /api/campanas/{id}/users/{userId}:
+ *   delete:
+ *     summary: Desasignar usuario de una campaña
+ *     tags: [Campañas]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: integer
+ *     responses:
+ *       200:
+ *         description: Usuario desasignado correctamente
+ *       404:
+ *         description: Usuario o campaña no encontrada
+ */
+router.delete("/:id/users/:userId", verifyToken, removeUserFromCampana);
 
 export default router;

@@ -83,3 +83,25 @@ export const loginController = async (req, res) => {
     res.status(500).json({ msg: "Error al iniciar sesión" });
   }
 };
+
+export const meController = async (req, res) => {
+  try {
+    const user = req.user; // viene del JWT
+
+    const fullUser = await User.findById(user.id);
+
+    const companies = await UserCompany.getCompaniesByUser(user.id);
+
+    res.json({
+      id: fullUser.id,
+      name: fullUser.name,
+      email: fullUser.email,
+      role_id: fullUser.role_id,
+      isSuperAdmin: fullUser.role_id === 1,
+      companies
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: "Error obteniendo usuario autenticado" });
+  }
+};

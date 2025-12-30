@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { registerController, loginController } from "../controllers/auth.controller.js";
+import { verifyToken } from "../middlewares/auth.middleware.js";
+import { registerController, loginController, meController  } from "../controllers/auth.controller.js";
 
 const router = Router();
 
@@ -80,5 +81,7 @@ router.post("/register", registerController);
  *         description: Error del servidor
  */
 router.post("/login", loginController);
+
+router.get("/me", verifyToken, meController);
 
 export default router;
