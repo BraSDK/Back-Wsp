@@ -67,9 +67,11 @@ export const User = {
   // Obtener usuarios por company_id
   findUsersByCompany: async (company_id) => {
     const [rows] = await db.query(
-      `SELECT u.id, u.name, u.email, u.role_id, u.created_at
+      `SELECT u.id, u.name, u.email, u.role_id, r.name AS role_name, c.id AS company_id, c.name AS company_name, u.created_at
       FROM users u
       INNER JOIN user_companies uc ON uc.user_id = u.id
+      INNER JOIN companies c ON c.id = uc.company_id
+      LEFT JOIN roles r ON r.id = u.role_id
       WHERE uc.company_id = ?
       ORDER BY u.created_at DESC`,
       [company_id]
@@ -86,9 +88,13 @@ export const User = {
         u.email,
         u.role_id,
         r.name AS role_name,
+        c.id AS company_id,
+        c.name AS company_name,
         u.created_at
       FROM users u
       LEFT JOIN roles r ON r.id = u.role_id
+      LEFT JOIN user_companies uc ON uc.user_id = u.id
+      LEFT JOIN companies c ON c.id = uc.company_id
       ORDER BY u.created_at DESC
     `);
     return rows;
